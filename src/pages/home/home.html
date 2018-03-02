@@ -4,35 +4,39 @@
   </ion-navbar>
 </ion-header>
 
-<ion-content padding class="main-content">
-  <div [style.width]="getWidth()" [style.height]="getHeight()" class="visualizer-wrapper">
+<ion-content padding>
+  <div [style.width]="getWidth()" [style.height]="getHeight()">
     <ion-title>
       Music Analyser
     </ion-title>
     <canvas #visualizer class="visualizer" width="1040" height="200"></canvas>
 
-    <ion-item>
-      <ion-label>Mic sensitivity</ion-label>
-      <ion-range dualKnobs="true" pin="true" [(ngModel)]="sensitivity" min="-150" max="20" [(ngModel)]="minSensitivity" (ionChange)="onSensitivityChange($event)">
-        <ion-icon range-left name="mic-off" title="minimum value"></ion-icon>
-        <ion-icon range-right name="mic" title="maximum value"></ion-icon>
-      </ion-range>
-    </ion-item>
-
-    <ion-item>
-        <ion-label>Mode</ion-label>
-        <ion-select [(ngModel)]="os">
-        </ion-select>
+    <ion-list>
+      <ion-list-header>Mic sensitivity</ion-list-header>
+      <ion-item>
+        <ion-range dualKnobs="true" [(ngModel)]="sensitivity" min="-150" max="20" [(ngModel)]="minSensitivity" (ionChange)="onSensitivityChange($event)">
+          <ion-icon range-left name="mic-off" title="minimum value"></ion-icon>
+          <ion-icon range-right name="mic" title="maximum value"></ion-icon>
+        </ion-range>
       </ion-item>
 
-    <ion-item>
-      <ion-label>Speed</ion-label>
-      <ion-select select-left></ion-select>
-    </ion-item>
-    <ion-item>
-      <ion-label>Cycle Colors</ion-label>
-      <ion-select></ion-select>
-    </ion-item>
+      <ion-list-header>Brightness</ion-list-header>
+      <ion-item>
+        <ion-range min="0" max="254" step="2" [(ngModel)]="brightness">
+          <ion-icon small range-left name="sunny"></ion-icon>
+          <ion-icon range-right name="sunny"></ion-icon>
+        </ion-range>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>Speed</ion-label>
+        <ion-select select-left></ion-select>
+      </ion-item>
+      <ion-item>
+        <ion-label>Cycle Colors</ion-label>
+        <ion-select></ion-select>
+      </ion-item>
+    </ion-list>
 
 
     <ion-footer no-border>

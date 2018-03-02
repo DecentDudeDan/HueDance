@@ -16,6 +16,8 @@ export class HomePage implements OnInit {
     upper: -10
   };
 
+  brightness: number = 126;
+
   private maxToastDismissed: boolean = true;
   private minToastDismissed: boolean = true;
   listening: boolean = true;
