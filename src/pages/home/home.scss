@@ -1,6 +1,13 @@
 .visualizer-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.block {
+  width: 40px;
+  height: 40px;
+  display: inline-block;
+  padding: 0 10px;
 }

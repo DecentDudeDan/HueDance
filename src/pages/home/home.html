@@ -11,41 +11,69 @@
     </ion-title>
     <canvas #visualizer class="visualizer" width="1040" height="200"></canvas>
 
+    <ion-toolbar>
+      <button ion-button full (click)="onListenClick()">
+        {{listening ? 'Stop Listening' : 'Listen'}}
+      </button>
+    </ion-toolbar>
+
     <ion-list>
+
+      <ion-list-header>
+        <ion-item>
+          <div>
+            <div class="block" [style.background]="colors[0]"></div>
+            <div class="block" [style.background]="colors[1]"></div>
+            <div class="block" [style.background]="colors[2]"></div>
+            <div class="block" [style.background]="colors[3]"></div>
+            <div class="block" [style.background]="colors[4]"></div>
+          </div>
+        </ion-item>
+      </ion-list-header>
+
+
       <ion-list-header>Mic sensitivity</ion-list-header>
       <ion-item>
         <ion-range dualKnobs="true" [(ngModel)]="sensitivity" min="-150" max="20" [(ngModel)]="minSensitivity" (ionChange)="onSensitivityChange($event)">
-          <ion-icon range-left name="mic-off" title="minimum value"></ion-icon>
-          <ion-icon range-right name="mic" title="maximum value"></ion-icon>
+          <ion-label range-left>Min</ion-label>
+          <ion-label range-right>Max</ion-label>
         </ion-range>
       </ion-item>
 
       <ion-list-header>Brightness</ion-list-header>
       <ion-item>
-        <ion-range min="0" max="254" step="2" [(ngModel)]="brightness">
+        <ion-range min="0" max="3000" step="2" [(ngModel)]="brightness">
           <ion-icon small range-left name="sunny"></ion-icon>
           <ion-icon range-right name="sunny"></ion-icon>
         </ion-range>
       </ion-item>
 
+      <ion-list-header>Kick sensitivity</ion-list-header>
+      <ion-item>
+        <ion-range min="0" max="HEIGHT" step="2" [(ngModel)]="kickLevel">
+          <ion-icon small range-left name="pulse"></ion-icon>
+          <ion-icon range-right name="pulse"></ion-icon>
+        </ion-range>
+      </ion-item>
+
       <ion-item>
         <ion-label>Speed</ion-label>
-        <ion-select select-left></ion-select>
+        <ion-select interface="popover" [(ngModel)]="speed">
+          <ion-option value="slow">Slow</ion-option>
+          <ion-option value="fast">Fast</ion-option>
+        </ion-select>
       </ion-item>
       <ion-item>
         <ion-label>Cycle Colors</ion-label>
-        <ion-select></ion-select>
+        <ion-toggle [(ngModel)]="shouldCycleColors"></ion-toggle>
+      </ion-item>
+
+      <ion-item>
+        <button ion-button (click)="startTone()">
+          Play Tone
+        </button>
       </ion-item>
     </ion-list>
-
-
-    <ion-footer no-border>
-      <ion-toolbar>
-        <button ion-button full (click)="onListenClick()">
-          {{listening ? 'Stop Listening' : 'Listen'}}
-        </button>
-      </ion-toolbar>
-    </ion-footer>
   </div>
 
 </ion-content>
