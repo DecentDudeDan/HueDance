@@ -46,6 +46,9 @@ export class HomePage implements OnInit {
   private source: MediaStreamAudioSourceNode;
   @ViewChild('visualizer')
   private canvas: ElementRef;
+
+  @ViewChild('myAudio')
+  private audio: ElementRef;
   private canvasCtx;
   private drawVisual;
   private analyzerNode: AnalyserNode;
@@ -87,12 +90,11 @@ export class HomePage implements OnInit {
       console.log('getUserMedia not supported on your browser!');
     }
 
-    this.scriptProcessorNode.onaudioprocess = (event: AudioProcessingEvent) => {
+    this.scriptProcessorNode.onaudioprocess = () => {
       if (!this.analyzerNode) {
         console.warn('Analyser not connected');
         return;
       }
-
       let dataArray = Uint8Array.from(this.dataArrayAlt.slice(0, 100));
 
       const max: { position: number, value: number } = this.getMaxAmplitude(dataArray);
@@ -104,7 +106,6 @@ export class HomePage implements OnInit {
       for (let i = 0, j = dataArray.length; i < j; i += chunk) {
         splitArrays.push(dataArray.slice(i, i + chunk));
       }
-      debugger;
       splitArrays.forEach((a, i) => {
         let max = this.getMaxAmplitude(a);
         if (max.value/2 > this.HEIGHT - this.kickLevel) {
@@ -226,7 +227,8 @@ export class HomePage implements OnInit {
         video: false
       }, (stream: MediaStream) => {
         this.stream = stream;
-        this.source = this.audioCtx.createMediaStreamSource(stream);
+        // this.source = this.audioCtx.createMediaStreamSource(stream);
+        this.source = this.audioCtx.createMediaElementSource(this.audio.nativeElement);
         this.source.connect(this.analyzerNode).connect(this.scriptProcessorNode).connect(this.audioCtx.destination);
         this.visualize();
       },
