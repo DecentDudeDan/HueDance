@@ -14,34 +14,28 @@ export class HomePage implements OnInit {
   }
 
   sensitivity = {
-    lower: -60,
-    upper: 0
+    lower: -70,
+    upper: -30
   };
 
   brightness: number = 126;
   shouldCycleColors: boolean = true;
   speed: string = "slow"
 
-  firstColor = 'black';
-  secondColor = 'black';
-  thirdColor = 'black';
-  fourthColor = 'black';
-  fifthColor = 'black';
-
   private maxToastDismissed: boolean = true;
   private minToastDismissed: boolean = true;
   listening: boolean = true;
 
-  private availableColors: string[] = ['red', 'orange', 'yellow', 'green', 'blue', 'violet'];
-  private colors: string[] = [this.firstColor, this.secondColor, this.thirdColor, this.fourthColor, this.fifthColor];
+  private availableColorHues: number[] = [0, 12750, 12750, 46920, 56100];
   private colorIndex: number = 0;
 
   private stream: MediaStream;
   private WIDTH;
   private HEIGHT;
   private audioCtx: AudioContext;
-  private kickLevel: number = 20;
+  private kickLevel: number = 60;
   private lastPosition: number = 0;
+  private availableLights;
   // private gainNode;
   private source: MediaStreamAudioSourceNode;
   @ViewChild('visualizer')
@@ -69,8 +63,8 @@ export class HomePage implements OnInit {
     this.oscillator.frequency.value = 100;
     this.amp = this.audioCtx.createGain();
     this.amp.gain.value = 0;
-    this.analyzerNode.minDecibels = -60;
-    this.analyzerNode.maxDecibels = 0;
+    this.analyzerNode.minDecibels = this.sensitivity.lower;
+    this.analyzerNode.maxDecibels = this.sensitivity.upper;
     this.analyzerNode.smoothingTimeConstant = 0.85;
 
 
@@ -85,53 +79,44 @@ export class HomePage implements OnInit {
 
     if (navigator.getUserMedia) {
       console.log('getUserMedia supported.');
-      this.setup();
+      this.hueService.getLights().subscribe(() => {
+        this.setup();
+      });
     } else {
       console.log('getUserMedia not supported on your browser!');
     }
 
-    this.scriptProcessorNode.onaudioprocess = () => {
-      if (!this.analyzerNode) {
-        console.warn('Analyser not connected');
-        return;
-      }
-      let dataArray = Uint8Array.from(this.dataArrayAlt.slice(0, 100));
-
-      const max: { position: number, value: number } = this.getMaxAmplitude(dataArray);
-
-      let splitArrays: Array<Uint8Array> = [];
-
-      let chunk = 20;
-
-      for (let i = 0, j = dataArray.length; i < j; i += chunk) {
-        splitArrays.push(dataArray.slice(i, i + chunk));
-      }
-      splitArrays.forEach((a, i) => {
-        let max = this.getMaxAmplitude(a);
-        if (max.value/2 > this.HEIGHT - this.kickLevel) {
-          this.colors[i] = this.getNextColor();
-        } else {
-          this.colors[i] = 'black';
+    this.scriptProcessorNode.onaudioprocess = (event) => {
+      if (this.availableLights.length) {
+        if (!this.analyzerNode) {
+          console.warn('Analyser not connected');
+          return;
         }
-      })
+        let dataArray = Uint8Array.from(this.dataArrayAlt.slice(0, 100));
 
-      // if (max.position !== this.lastPosition) {
-      //   console.log(max);
-      //   if (max.position >= 0 && max.position < 14) {
-      //     this.firstColor = this.shouldCycleColors ? this.getNextColor() : this.availableColors[0];
-      //   } else if (max.position >= 15 && max.position < 24) {
-      //     this.secondColor = this.shouldCycleColors ? this.getNextColor() : this.availableColors[1];
-      //   } else if (max.position >= 25 && max.position < 34) {
-      //     this.thirdColor = this.shouldCycleColors ? this.getNextColor() : this.availableColors[2];
-      //   } else if (max.position >= 35 && max.position < 44) {
-      //     this.fourthColor = this.shouldCycleColors ? this.getNextColor() : this.availableColors[3];
-      //   } else if (max.position >= 45 && max.position < 54) {
-      //     this.fifthColor = this.shouldCycleColors ? this.getNextColor() : this.availableColors[4];
-      //   }
-      //   this.lastPosition = max.position;
-      // }
+        let splitArrays: Array<Uint8Array> = [];
 
-      this.ref.detectChanges();
+        let chunk = 10;
+
+        for (let i = 0, j = dataArray.length; i < j; i += chunk) {
+          splitArrays.push(dataArray.slice(i, i + chunk));
+        }
+        splitArrays.forEach((a, i) => {
+          let lightIndex = (i % this.availableLights.length) + 1;
+          let max = this.getMaxAmplitude(a);
+          if (max.value / 2 > this.HEIGHT - this.kickLevel) {
+            this.hueService.setLightState('' + lightIndex, {
+              alert: 'select',
+              hue: this.getNextColorHue(),
+              transitiontime: 0
+            }).subscribe(() => {
+              console.log('changed light state');
+            });
+          }
+        });
+
+        this.ref.detectChanges();
+      }
     }
   }
 
@@ -150,15 +135,15 @@ export class HomePage implements OnInit {
     }
   }
 
-  getNextColor(): string {
+  getNextColorHue(): number {
     const index = this.colorIndex;
-    if (this.colorIndex + 1 >= this.availableColors.length) {
+    if (this.colorIndex + 1 >= this.availableColorHues.length) {
       this.colorIndex = 0;
     } else {
       this.colorIndex++;
     }
 
-    return this.availableColors[index];
+    return this.availableColorHues[index];
   }
 
   onSensitivityChange() {
@@ -220,6 +205,8 @@ export class HomePage implements OnInit {
   }
 
   setup(): void {
+    this.availableLights = this.hueService.getAllLights();
+
     navigator.getUserMedia(
       // constraints - only audio needed for this app
       {
@@ -227,8 +214,8 @@ export class HomePage implements OnInit {
         video: false
       }, (stream: MediaStream) => {
         this.stream = stream;
-        // this.source = this.audioCtx.createMediaStreamSource(stream);
-        this.source = this.audioCtx.createMediaElementSource(this.audio.nativeElement);
+        this.source = this.audioCtx.createMediaStreamSource(stream);
+        // this.source = this.audioCtx.createMediaElementSource(this.audio.nativeElement);
         this.source.connect(this.analyzerNode).connect(this.scriptProcessorNode).connect(this.audioCtx.destination);
         this.visualize();
       },

@@ -6,7 +6,7 @@ import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
 import { MyApp } from './app.component';
 import { BackgroundMode } from '@ionic-native/background-mode';
 
-import { AboutPage } from '../pages/about/about';
+import { SetupPage } from '../pages/setup/setup';
 import { HomePage } from '../pages/home/home';
 import { TabsPage } from '../pages/tabs/tabs';
 
@@ -18,7 +18,7 @@ import { CommonModule } from '@angular/common';
 @NgModule({
   declarations: [
     MyApp,
-    AboutPage,
+    SetupPage,
     BulbsPage,
     HomePage,
     TabsPage
@@ -32,7 +32,7 @@ import { CommonModule } from '@angular/common';
   bootstrap: [IonicApp],
   entryComponents: [
     MyApp,
-    AboutPage,
+    SetupPage,
     BulbsPage,
     HomePage,
     TabsPage

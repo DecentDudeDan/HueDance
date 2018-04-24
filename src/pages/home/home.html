@@ -18,20 +18,6 @@
     </ion-toolbar>
 
     <ion-list>
-
-      <ion-list-header>
-        <ion-item>
-          <div>
-            <div class="block" [style.background]="colors[0]"></div>
-            <div class="block" [style.background]="colors[1]"></div>
-            <div class="block" [style.background]="colors[2]"></div>
-            <div class="block" [style.background]="colors[3]"></div>
-            <div class="block" [style.background]="colors[4]"></div>
-          </div>
-        </ion-item>
-      </ion-list-header>
-
-
       <ion-list-header>Mic sensitivity</ion-list-header>
       <ion-item>
         <ion-range dualKnobs="true" [(ngModel)]="sensitivity" min="-150" max="20" [(ngModel)]="minSensitivity" (ionChange)="onSensitivityChange($event)">
@@ -73,7 +59,6 @@
           Play Tone
         </button>
       </ion-item>
-      <audio #myAudio controls src="https://ia902508.us.archive.org/5/items/testmp3testfile/mpthreetest.mp3"></audio>
     </ion-list>
   </div>
 
